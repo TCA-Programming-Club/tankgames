@@ -10,12 +10,12 @@ change variable names
 */
 //___________________________________Variables_____________________________________
 var shells = [{x:-10,y:0,a:0,n:0}]; //sets up array for the shells
-
+var deadTanks; //number of dead tanks
 
 
 //_____________________________________Objects________________________________
 //object that sets up the variables for a tank
-var Tank=function(xB,yB,widthB,heightB,speedB,angT,lengthT,numberOfT,speedT,sizeS,cooldownS,speedS,damageS,armourLevel,health,tankNum){ 
+var Tank=function(xB,yB,widthB,heightB,speedB,angT,lengthT,numberOfT,speedT,sizeS,cooldownS,speedS,damageS,armourLevel,health,tankNum,score){ 
 
     //body variables
     this.xB=xB;//x Body position of tank
@@ -57,18 +57,20 @@ var Tank=function(xB,yB,widthB,heightB,speedB,angT,lengthT,numberOfT,speedT,size
     this.health=health; 
     this.tankNum=tankNum; //number of tank
     this.lastShotTime=0; //time since the tank last fired
+    this.score=0;
     
     
 };
 
 //initiates and defines objects and put them in an array--------------------------------
-var tank0=new Tank(10,10, 20,20,1,0,16,1,1,5,75,0.2,1,2,50,0);
-var tank1=new Tank(10,370,20,20,1,180,16,1,1,5,75,0.2,1,2,50,1);
-var tank2=new Tank(370,10,20,20,1,315,16,1,1,5,75,0.2,1,2,50,2);
-var tank3=new Tank(200,200,20,20,1,180,16,1,1,5,75,0.2,1,2,50,3);
+var tank0=new Tank(10,10, 20,20,1,0,16,1,1,5,75,0.2,1,2,50,0,0);
+var tank1=new Tank(10,370,20,20,1,180,16,1,1,5,75,0.2,1,2,50,1,0);
+var tank2=new Tank(370,10,20,20,1,315,16,1,1,5,75,0.2,1,2,50,2,0);
+var tank3=new Tank(200,200,20,20,1,180,16,1,1,5,75,0.2,1,2,50,3,0);
+var tankJohnathan=new Tank(50,50, 20,20,1,0,16,1,1,5,75,0.2,1,2,50,4,0);
 var tanks=[tank0,tank1,tank2,tank3];
 
-//order of variables:  xB,yB,widthB,heightB,speedB,angT,lengthT,numberOfT,speedT,sizeS,cooldownS,speedS,damageS,armourLevel,health tankNum
+//order of variables:  xB,yB,widthB,heightB,speedB,angT,lengthT,numberOfT,speedT,sizeS,cooldownS,speedS,damageS,armourLevel,health,tankNum
 
 
 //Methods--------------------------------------------------------------------------------
@@ -134,17 +136,22 @@ Tank.prototype.progressShells=function(){
 };
 
 //displays and updates health for the tank based on shell placemnent
-Tank.prototype.checkHealth=function(){
+Tank.prototype.checkHealthAndScore=function(){
     //if the bullet passes through the tank's hitbox subtract health
     for(var i=0; i<shells.length; i++){
         var shell=shells[i];
         if(this.xB+this.widthB/2-shell.x<this.xHitBox && this.yB+this.heightB/2-shell.y<this.yHitBox && this.xB+this.widthB/2-shell.x>-this.xHitBox && this.yB+this.heightB/2-shell.y>-this.yHitBox){  //defines range of hitbox
             
             this.health=this.health-this.armourLevel*tanks[shell.n].damageS; 
+            this.score-=1;
+            tanks[shell.n].score+=1; 
         }
     }
     
-    
+    //display score
+    textSize(10);
+    fill(5, 5, 5);
+    text(this.score,this.xB+this.widthB/2-5,this.yB+this.heightB+8);
     
     //display health text
     textSize(10);
@@ -182,16 +189,38 @@ Tank.prototype.keepInBounds=function(){
 //___________________________________LOOP___________________________________________
 var draw= function() {
     background(255, 255, 255);
+    deadTanks=0;
     
+// for each tank--------------------------------------------------------------------------
     for(var i=0; i<tanks.length; i++){ //for each tank
+        
+        //display score if 1 tank is left
+        if(tanks[i].health<=0){
+            text(tanks[i].score,tanks[i].xB,tanks[i].yB);
+            deadTanks += 1;
+        }
+        if(deadTanks === tanks.length-1) {
+            text(tanks[i].score, tanks[i].xB,tanks[i].yB+this.heightB);
+        }
+        
+        
+        //does normal tank stuff
         if(tanks[i].health>0){ //if the tank still has health
-            tanks[i].draw(); //draw tank
             tanks[i].moveBody(); //move tank body
+            tanks[i].draw(); //draw tank
             tanks[i].moveTurret(); //move tank turret
             tanks[i].shoot(); //shoot a shell
-            tanks[i].checkHealth(); //check if health is hurt
             tanks[i].keepInBounds(); //brings tank back in bounds
+            
+            //check the health and score, but put it in middle if only one tank left
+            if(deadTanks !== tanks.length-1) {
+                tanks[i].checkHealthAndScore(); //check if health is hurt and updates score
+                
+            } else {
+                text(tanks[i].score,200,200);
+            }
         }
+        
         tanks[i].progressShells();  //move the shell
         
     }
@@ -303,6 +332,10 @@ var draw= function() {
     }
     
 };
+
+
+
+
 
 
 
