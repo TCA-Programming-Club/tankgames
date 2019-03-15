@@ -1,0 +1,310 @@
+/*
+Tank game where you program your own AI and see who's AI is better (see bottom for where to put code)
+
+
+Notes:
+add shell hit box not just shell center
+add turret numbers
+change variable names
+
+*/
+//___________________________________Variables_____________________________________
+var shells = [{x:-10,y:0,a:0,n:0}]; //sets up array for the shells
+
+
+
+//_____________________________________Objects________________________________
+//object that sets up the variables for a tank
+var Tank=function(xB,yB,widthB,heightB,speedB,angT,lengthT,numberOfT,speedT,sizeS,cooldownS,speedS,damageS,armourLevel,health,tankNum){ 
+
+    //body variables
+    this.xB=xB;//x Body position of tank
+    this.yB=yB;//y Body position of tank
+    this.widthB=widthB; 
+    this.heightB=heightB;
+    this.speedB=speedB; 
+    
+    this.yDirectionB=1;  //y direction of movement of body. 1 means in the positive direction while -1 in negative
+    this.xDirectionB=1;  //x direction of movement of body. 1 means in the positive direction while -1 in negative
+    this.yConditionB=0;  //is condition for y movement true(1) or false (0)
+    this.xConditionB=0;  //is condition for x movement true(1) or false (0)
+    this.xHitBox=widthB/2; //x distance from center of tank to edge of hit box
+    this.yHitBox=heightB/2;//y distance from center of tank to edge of hit box
+    
+    //turret variables
+    this.angT=angT; //Angle of the Turret (down is 0 degree)                                
+    this.lengthT=lengthT; 
+    this.numberOfT=numberOfT; //number of turrets  <---------------------------Edit-------
+    this.speedT=speedT; 
+    
+    this.directionT=1; //direction of movement of Turret. 1 means in the positive direction while -1 in negative
+    this.conditionT=0;//is condition for turret movement true(1) or false (0)
+    this.xt=0; //x postion of center of turret
+    this.yt=0; //y postion of center of turret
+    this.xT=0; //x end of turret
+    this.yT=0; //y end of turret
+    
+    //bullet variables
+    this.sizeS=sizeS; 
+    this.cooldownS=cooldownS; //cooldown of tank before it can fire again
+    this.speedS=speedS; 
+    this.damageS=damageS;
+    this.conditionS=0;  //is condition for firing true(1) or false (0)
+    
+    
+    //Other variables
+    this.armourLevel=armourLevel; //The lower the number, the less damage taken.
+    this.health=health; 
+    this.tankNum=tankNum; //number of tank
+    this.lastShotTime=0; //time since the tank last fired
+    
+    
+};
+
+//initiates and defines objects and put them in an array--------------------------------
+var tank0=new Tank(10,10, 20,20,1,0,16,1,1,5,75,0.2,1,2,50,0);
+var tank1=new Tank(10,370,20,20,1,180,16,1,1,5,75,0.2,1,2,50,1);
+var tank2=new Tank(370,10,20,20,1,315,16,1,1,5,75,0.2,1,2,50,2);
+var tank3=new Tank(200,200,20,20,1,180,16,1,1,5,75,0.2,1,2,50,3);
+var tanks=[tank0,tank1,tank2,tank3];
+
+//order of variables:  xB,yB,widthB,heightB,speedB,angT,lengthT,numberOfT,speedT,sizeS,cooldownS,speedS,damageS,armourLevel,health tankNum
+
+
+//Methods--------------------------------------------------------------------------------
+//method to draw the tank's body and turret
+Tank.prototype.draw=function(){
+    //update variables
+    this.xt=this.xB+this.widthB/2; //center of turret
+    this.yt=this.yB+this.heightB/2;
+    this.xT=sin(this.angT)*this.lengthT+this.xt; //end of turret displacement
+    this.yT=cos(this.angT)*this.lengthT+this.yt;
+    
+    //draw body
+    noStroke();
+    fill(255+this.tankNum*25%255, this.tankNum*100%255, this.tankNum*150%255);
+    rect(this.xB,this.yB,this.widthB,this.heightB);
+    
+    //draw turret
+    strokeWeight(5);
+    stroke(0, 0, 0);
+    line(this.xt,this.yt,this.xT,this.yT);
+    
+};
+
+//method to move the tank's body if conditionB is met
+Tank.prototype.moveBody=function(){
+    if(this.yConditionB===1){
+        this.yB=this.yB+this.speedB*this.yDirectionB;    
+    }
+    if(this.xConditionB===1){
+        this.xB=this.xB+this.speedB*this.xDirectionB;    
+    }
+};
+
+//method to move the tank's turret if conditionT is met
+Tank.prototype.moveTurret=function(){
+    if(this.conditionT===1){
+        this.angT=this.angT+this.speedT*this.directionT;    
+    }
+};
+
+//if the cooldown has elapsed allows for the tank to creat a shell if conditionS is met
+Tank.prototype.shoot=function(){
+    this.lastShotTime++;
+    if(this.conditionS===1){
+        if(this.lastShotTime>this.cooldownS){ //make the shell fire if cooldown has elapsed
+            this.lastShotTime=0;
+            shells[shells.length]={x:this.xT,y:this.yT,a:this.angT%360,n:this.tankNum};
+        }
+    }
+};
+
+//moves the shell after it has been fired
+Tank.prototype.progressShells=function(){
+    for(var i=0; i<shells.length; i++){
+        var shell=shells[i];
+        if(shell.n===this.tankNum){
+            ellipse(shell.x, shell.y, this.sizeS, this.sizeS);    
+            shell.x=shell.x+sin(shell.a)*this.lengthT*this.speedS;//moves it on x axis
+            shell.y=shell.y+cos(shell.a)*this.lengthT*this.speedS;//moves it on y axis    
+        }
+        
+    }
+};
+
+//displays and updates health for the tank based on shell placemnent
+Tank.prototype.checkHealth=function(){
+    //if the bullet passes through the tank's hitbox subtract health
+    for(var i=0; i<shells.length; i++){
+        var shell=shells[i];
+        if(this.xB+this.widthB/2-shell.x<this.xHitBox && this.yB+this.heightB/2-shell.y<this.yHitBox && this.xB+this.widthB/2-shell.x>-this.xHitBox && this.yB+this.heightB/2-shell.y>-this.yHitBox){  //defines range of hitbox
+            
+            this.health=this.health-this.armourLevel*tanks[shell.n].damageS; 
+        }
+    }
+    
+    
+    
+    //display health text
+    textSize(10);
+    fill(138, 51, 48);
+    text(this.health,this.xB+this.widthB/2-5,this.yB);
+    
+};
+
+//Keep tank on the screen
+Tank.prototype.keepInBounds=function(){
+    //if tank goes out of box, move it back into box
+    if(this.xB>380){
+        this.xB=380;   
+    }
+    if(this.xB<0){
+        this.xB=0;   
+    }
+    if(this.yB>380){
+        this.yB=380;   
+    }
+    if(this.yB<0){
+        this.yB=0;   
+
+    }
+};
+
+
+
+
+
+
+//___________________________________FUNCTIONS_____________________________________
+
+
+//___________________________________LOOP___________________________________________
+var draw= function() {
+    background(255, 255, 255);
+    
+    for(var i=0; i<tanks.length; i++){ //for each tank
+        if(tanks[i].health>0){ //if the tank still has health
+            tanks[i].draw(); //draw tank
+            tanks[i].moveBody(); //move tank body
+            tanks[i].moveTurret(); //move tank turret
+            tanks[i].shoot(); //shoot a shell
+            tanks[i].checkHealth(); //check if health is hurt
+            tanks[i].keepInBounds(); //brings tank back in bounds
+        }
+        tanks[i].progressShells();  //move the shell
+        
+    }
+    
+    
+    
+    //--------------------------------Code For Tank 0------------------------
+    tank0.conditionS=1;
+    tank0.conditionT=1;
+    if(tank0.angT%360>90){
+        tank0.conditionT=1;
+        tank0.directionT=-1;
+    }
+    if(tank0.angT%360<0){
+        tank0.conditionT=1;
+        tank0.directionT=1;
+    }
+    
+    
+    //--------------------------------Code For Tank 1------------------------
+    tank1.conditionS=1;
+    tank1.xConditionB=1;
+    if(tank1.xB>350){
+        tank1.xDirectionB=-1;
+    }
+    if(tank1.xB<50){
+        tank1.xDirectionB=1;
+    }
+    
+    
+    //--------------------------------Code For Tank 2------------------------
+    tank2.yConditionB=0;
+    tank2.xConditionB=0;
+    tank2.conditionT=0;
+    tank2.conditionS=1;
+    tank2.yDirectionB=1;
+    tank2.xDirectionB=1;
+    tank2.directionT=1;
+    
+    //--------------------------------Code For Tank 3------------------------
+    tank3.conditionS=1;
+    
+    //changes tank target
+    var tankTarget;
+    if(tank0.health>0){
+        tankTarget=0;
+    }
+    else if(tank1.health>0){
+        tankTarget=1;
+    }
+    else if(tank2.health>0){
+        tankTarget=2;
+    }
+    else{
+        tankTarget=3;
+    }
+    
+    
+    //auto-aiming code
+    var angleGoal= atan((tanks[tankTarget].xB-tank3.xB)/(tanks[tankTarget].yB-tank3.yB));
+    if(angleGoal+180>tank3.angT%360 && (tanks[tankTarget].yB-tank3.yB)<0){
+        tank3.conditionT=1;
+        tank3.directionT=1;
+    }
+    else if(angleGoal+180<tank3.angT%360 && (tanks[tankTarget].yB-tank3.yB)<0){
+        tank3.conditionT=1;
+        tank3.directionT=-1;
+    }
+    else if(angleGoal>tank3.angT%360 && (tanks[tankTarget].yB-tank3.yB)>0){
+        tank3.conditionT=1;
+        tank3.directionT=1;
+    }
+    else if(angleGoal<tank3.angT%360 && (tanks[tankTarget].yB-tank3.yB)>0){
+        tank3.conditionT=1;
+        tank3.directionT=-1;
+    }
+    else{
+        tank3.conditionT=0;
+    }
+    
+    //auto-moving code
+    var displacement=20;
+    //x movemet
+    if(tanks[tankTarget].xB+20>tank3.xB){
+        tank3.xConditionB=1;
+        tank3.xDirectionB=1;
+    }
+    else if(tanks[tankTarget].xB+20<tank3.xB){
+        tank3.xConditionB=1;
+        tank3.xDirectionB=-1;
+    }
+    
+    else{
+        tank3.xConditionB=0;
+    }
+    
+    //y movement
+    if(tanks[tankTarget].yB+20>tank3.yB){
+        tank3.yConditionB=1;
+        tank3.yDirectionB=1;
+    }
+    else if(tanks[tankTarget].yB+20<tank3.yB){
+        tank3.yConditionB=1;
+        tank3.yDirectionB=-1;
+    }
+    
+    else{
+        tank3.yConditionB=0;
+    }
+    
+};
+
+
+
+
+
