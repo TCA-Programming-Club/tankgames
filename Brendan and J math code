@@ -1,4 +1,4 @@
-    var shellsToAvoid0 = [shells];
+  var shellsToAvoid0 = [shells];
     for (var i = 0; i<shells.length; i++) {
         var shell=shells[i];
         var angleToHit0 = ((shell.y - tank0.y)/(shell.x - tank0.x));
@@ -10,9 +10,18 @@
     for (var i = 0; i<shellsToAvoid0.length; i++) {
         
     }
+    //firing code 
     var tankTarget0;
     tankTarget0 = 2;
     var firingAngle0;
-    firingAngle0 = atan(((tanks[tankTarget0].yB - tank0.yB)*((tanks[tankTarget0].yConditionB)*(tanks[tankTarget0].yDirectionB) + 1))/((tanks[tankTarget0].xB - tank0.xB)*(tanks[tankTarget0].xConditionB*(tanks[tankTarget0].xDirectionB) + 1)));
-if (firingAngle0
-    
+    firingAngle0 = atan((-(tanks[tankTarget0].yB - tank0.yB)*((tanks[tankTarget0].yConditionB)*(tanks[tankTarget0].yDirectionB) + 1))/((tanks[tankTarget0].xB - tank0.xB)*(tanks[tankTarget0].xConditionB*(tanks[tankTarget0].xDirectionB) + 1)));
+    text(firingAngle0,200,200);
+    if (firingAngle0 < (tank0.angT)%360 + 180) {
+     tank0.conditionT=1;
+     tank0.directionT=1;
+    }else if (firingAngle0 > (tank0.angT)%360 + 180) {
+    tank0.conditionT=1;
+    tank0.directionT=-1;
+    } else { 
+    tank0.conditionT = 0;
+    }
