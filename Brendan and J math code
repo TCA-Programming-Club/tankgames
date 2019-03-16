@@ -1,0 +1,18 @@
+    var shellsToAvoid0 = [shells];
+    for (var i = 0; i<shells.length; i++) {
+        var shell=shells[i];
+        var angleToHit0 = ((shell.y - tank0.y)/(shell.x - tank0.x));
+        if (angleToHit0/2 < -tan(shell.a) && angleToHit0*2 > -tan(shell.a)) {
+            shell = shellsToAvoid0[shellsToAvoid0.length];
+        }
+    } //filters through all shells to find ones that can hit us
+    
+    for (var i = 0; i<shellsToAvoid0.length; i++) {
+        
+    }
+    var tankTarget0;
+    tankTarget0 = 2;
+    var firingAngle0;
+    firingAngle0 = atan(((tanks[tankTarget0].yB - tank0.yB)*((tanks[tankTarget0].yConditionB)*(tanks[tankTarget0].yDirectionB) + 1))/((tanks[tankTarget0].xB - tank0.xB)*(tanks[tankTarget0].xConditionB*(tanks[tankTarget0].xDirectionB) + 1)));
+if (firingAngle0
+    
