@@ -9,9 +9,11 @@ change variable names
 
 */
 //___________________________________Variables_____________________________________
-var shells = [{x:-10,y:0,a:0,n:0}]; //sets up array for the shells
+var shells = [{x:-10,y:0,a:270,n:0}]; //sets up array for the shells
 var deadTanks; //number of dead tanks
-
+var movementType0 = 0;
+var goalPlace0 = [];
+var tankToAvoid0;
 
 //_____________________________________Objects________________________________
 //object that sets up the variables for a tank
@@ -63,10 +65,10 @@ var Tank=function(xB,yB,widthB,heightB,speedB,angT,lengthT,numberOfT,speedT,size
 };
 
 //initiates and defines objects and put them in an array--------------------------------
-var tank0=new Tank(10,10, 20,20,1,0,16,1,1,5,75,0.2,1,2,50,0,0);
+var tank0=new Tank(200,200, 20,20,1,0,16,1,1,5,75,0.2,1,2,50,0,0);
 var tank1=new Tank(10,370,20,20,1,180,16,1,1,5,75,0.2,1,2,50,1,0);
 var tank2=new Tank(370,10,20,20,1,315,16,1,1,5,75,0.2,1,2,50,2,0);
-var tank3=new Tank(200,200,20,20,1,180,16,1,1,5,75,0.2,1,2,50,3,0);
+var tank3=new Tank(10,10,20,20,1,180,16,1,1,5,75,0.2,1,2,50,3,0);
 var tankJohnathan=new Tank(50,50, 20,20,1,0,16,1,1,5,75,0.2,1,2,50,4,0);
 var tanks=[tank0,tank1,tank2,tank3];
 
@@ -79,8 +81,8 @@ Tank.prototype.draw=function(){
     //update variables
     this.xt=this.xB+this.widthB/2; //center of turret
     this.yt=this.yB+this.heightB/2;
-    this.xT=sin(this.angT)*this.lengthT+this.xt; //end of turret displacement
-    this.yT=cos(this.angT)*this.lengthT+this.yt;
+    this.xT=cos(this.angT)*this.lengthT+this.xt; //end of turret displacement
+    this.yT=-sin(this.angT)*this.lengthT+this.yt;
     
     //draw body
     noStroke();
@@ -128,14 +130,13 @@ Tank.prototype.progressShells=function(){
         var shell=shells[i];
         if(shell.n===this.tankNum){
             ellipse(shell.x, shell.y, this.sizeS, this.sizeS);    
-            shell.x=shell.x+sin(shell.a)*this.lengthT*this.speedS;//moves it on x axis
-            shell.y=shell.y+cos(shell.a)*this.lengthT*this.speedS;//moves it on y axis    
+            shell.x=shell.x+cos(shell.a)*this.lengthT*this.speedS;//moves it on x axis
+            shell.y=shell.y-sin(shell.a)*this.lengthT*this.speedS;//moves it on y axis  
         }
-        
     }
 };
 
-//displays and updates health for the tank based on shell placemnent
+//displays and updates health for the tank based on shell placement
 Tank.prototype.checkHealthAndScore=function(){
     //if the bullet passes through the tank's hitbox subtract health
     for(var i=0; i<shells.length; i++){
@@ -228,16 +229,7 @@ var draw= function() {
     
     
     //--------------------------------Code For Tank 0------------------------
-    tank0.conditionS=1;
-    tank0.conditionT=1;
-    if(tank0.angT%360>90){
-        tank0.conditionT=1;
-        tank0.directionT=-1;
-    }
-    if(tank0.angT%360<0){
-        tank0.conditionT=1;
-        tank0.directionT=1;
-    }
+
     
     
     //--------------------------------Code For Tank 1------------------------
@@ -252,16 +244,7 @@ var draw= function() {
     
     
     //--------------------------------Code For Tank 2------------------------
-    tank2.yConditionB=0;
-    tank2.xConditionB=0;
-    tank2.conditionT=0;
     tank2.conditionS=1;
-    tank2.yDirectionB=1;
-    tank2.xDirectionB=1;
-    tank2.directionT=1;
-    
-    //--------------------------------Code For Tank 3------------------------
-    tank3.conditionS=1;
     
     //changes tank target
     var tankTarget;
@@ -271,38 +254,31 @@ var draw= function() {
     else if(tank1.health>0){
         tankTarget=1;
     }
-    else if(tank2.health>0){
-        tankTarget=2;
+    else if(tank3.health>0){
+        tankTarget=3;
     }
     else{
-        tankTarget=3;
+        tankTarget=2;
     }
     
     
     //auto-aiming code
-    var angleGoal= atan((tanks[tankTarget].xB-tank3.xB)/(tanks[tankTarget].yB-tank3.yB));
-    if(angleGoal+180>tank3.angT%360 && (tanks[tankTarget].yB-tank3.yB)<0){
-        tank3.conditionT=1;
-        tank3.directionT=1;
+    /*var angleGoal= -atan((tank2.yB - tanks[tankTarget].yB) / (tank2.xB - tanks[tankTarget].xB));
+    if ((tank2.xB - tanks[tankTarget].xB) >= 0) {
+        angleGoal += 180;
     }
-    else if(angleGoal+180<tank3.angT%360 && (tanks[tankTarget].yB-tank3.yB)<0){
-        tank3.conditionT=1;
-        tank3.directionT=-1;
-    }
-    else if(angleGoal>tank3.angT%360 && (tanks[tankTarget].yB-tank3.yB)>0){
-        tank3.conditionT=1;
-        tank3.directionT=1;
-    }
-    else if(angleGoal<tank3.angT%360 && (tanks[tankTarget].yB-tank3.yB)>0){
-        tank3.conditionT=1;
-        tank3.directionT=-1;
-    }
-    else{
-        tank3.conditionT=0;
-    }
+    if (angleGoal > tank2.angT%360) {
+        tank2.conditionT = 1;
+        tank2.directionT = 1;
+    } else if (angleGoal < tank2.angT%360) {
+        tank2.conditionT = 1;
+        tank2.directionT = -1;
+    } else {
+        tank2.conditionT=0;
+    }*/
     
     //auto-moving code
-    var displacement=20;
+    /*var displacement=20;
     //x movemet
     if(tanks[tankTarget].xB+20>tank3.xB){
         tank3.xConditionB=1;
@@ -329,15 +305,74 @@ var draw= function() {
     
     else{
         tank3.yConditionB=0;
+    }*/
+    
+    
+    //--------------------------------Code For Tank 3------------------------
+    tank3.conditionS=1;
+    
+    //changes tank target
+    var tankTarget;
+    if(tank0.health>0){
+        tankTarget=0;
+    }
+    else if(tank1.health>0){
+        tankTarget=1;
+    }
+    else if(tank2.health>0){
+        tankTarget=2;
+    }
+    else{
+        tankTarget=3;
     }
     
+    
+    //auto-aiming code
+    var angleGoal= -atan((tank3.yB - tanks[tankTarget].yB) / (tank3.xB - tanks[tankTarget].xB));
+    if ((tank3.xB - tanks[tankTarget].xB) >= 0) {
+        angleGoal += 180;
+    }
+    if (angleGoal > tank3.angT%360) {
+        tank3.conditionT = 1;
+        tank3.directionT = 1;
+    } else if (angleGoal < tank3.angT%360) {
+        tank3.conditionT = 1;
+        tank3.directionT = -1;
+    } else {
+        tank3.conditionT=0;
+    }
+    
+    //auto-moving code
+    /*var displacement=20;
+    //x movemet
+    if(tanks[tankTarget].xB+20>tank3.xB){
+        tank3.xConditionB=1;
+        tank3.xDirectionB=1;
+    }
+    else if(tanks[tankTarget].xB+20<tank3.xB){
+        tank3.xConditionB=1;
+        tank3.xDirectionB=-1;
+    }
+    
+    else{
+        tank3.xConditionB=0;
+    }
+    
+    //y movement
+    if(tanks[tankTarget].yB+20>tank3.yB){
+        tank3.yConditionB=1;
+        tank3.yDirectionB=1;
+    }
+    else if(tanks[tankTarget].yB+20<tank3.yB){
+        tank3.yConditionB=1;
+        tank3.yDirectionB=-1;
+    }
+    
+    else{
+        tank3.yConditionB=0;
+    }*/
+    
 };
-
-
-
-
-
-
 
 
 
