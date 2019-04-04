@@ -279,14 +279,14 @@
         tankTarget0=1;
     }
     text(tankTarget0,50,50);
-    var targetDistance0 = sqrt((tanks[tankTarget0].yB - tank0.yB)^2 + (tanks[tankTarget0].xB - tank0.xB)^2);
+    var targetDistance0 = sqrt(sq(tanks[tankTarget0].yB - tank0.yB) + sq(tanks[tankTarget0].xB - tank0.xB));
     var predictedX0 = targetDistance0*tanks[tankTarget0].xConditionB/sqrt(2)+tanks[tankTarget0].xB;
     var predictedY0 = targetDistance0*tanks[tankTarget0].xConditionB/sqrt(2)+tanks[tankTarget0].xB;
     text(predictedX0,10,10);
     text(predictedY0,10,20);
 var firingAngle0;
     //firingAngle0 = -atan((tank0.yB - tanks[tankTarget0].yB) / (tank0.xB - tanks[tankTarget0].xB));
-    firingAngle0 = -atan((tank0.yB - predictedY0) / (tank0.xB -predictedX0));
+    firingAngle0 = -atan2((tank0.yB - predictedY0) , (tank0.xB -predictedX0));
     if (tank0.xB - tanks[tankTarget0].xB > 0) {
          firingAngle0 += 180;   
     }
