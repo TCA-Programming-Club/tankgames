@@ -1,28 +1,307 @@
-  var shellsToAvoid0 = [shells];
-    for (var i = 0; i<shells.length; i++) {
-        var shell=shells[i];
-        var angleToHit0 = ((shell.y - tank0.y)/(shell.x - tank0.x));
-        if (angleToHit0/2 < -tan(shell.a) && angleToHit0*2 > -tan(shell.a)) {
-            shell = shellsToAvoid0[shellsToAvoid0.length];
-        }
-    } //filters through all shells to find ones that can hit us
+     var shellsToAvoid0 = [];
+     for (var i = 0; i < shells.length; i++) {
+         var shell = shells[i];
+         var slopeToHit0 = ((shell.y - tank0.yB) / (shell.x - tank0.xB));
+         var angleToHit0 = -atan(slopeToHit0);
+         if ((shell.x - tank0.xB) > 0) {
+             angleToHit0 += 180;
+         }
+         if (angleToHit0 - 30 < shell.a && angleToHit0 + 30 > shell.a && shell.n !== 0) {
+             shellsToAvoid0.push(shell);
+         }
+     }//filters through all shells to find ones that can hit us by angle
+     for (var i = 0; i < shells.length; i++) {
+         var shell = shells[i];
+         var distanceToShell0 = Math.sqrt(Math.pow(tank0.xB - shell.x, 2) + Math.pow(tank0.yB - shell.y, 2));
+         if (distanceToShell0 <= 100 && shell.n !== 0) {
+             shellsToAvoid0.push(shell);
+         }
+         
+     }//filters through all shells to find ones that can hit us by proximity
+     
+     for (var i = 0; i < shellsToAvoid0.length; i++) {
+         var shell = shellsToAvoid0[i];
+         text ("angle " + i + ": " + Math.round(shell.a), 10 + 120 * i, 350);
+         text ("x-coordinate " + i + ": " + Math.round(shell.x), 10 + 120 * i, 360);
+         text ("y-coordinate " + i + ": " + Math.round(shell.y), 10 + 120 * i, 370); //displays shell's raw data
+         strokeWeight(1);
+         for (var j = 0; j <= 400; j++) {
+             point (j, -tan(shell.a)*j + tan(shell.a)*shell.x + shell.y); //draws shell path by x's
+         }
+         for (var j = 0; j <= 400; j++) {
+             point (-(j - shell.y)/tan(shell.a) + shell.x, j); //draws shell path by y's
+         }
+     }//debug info for shells
+     
+     var checkSpot = function(x, y) {
+     for (var xOffset = 0; xOffset <= 20; xOffset++) {
+         for (var shellListing = 0; shellListing < shellsToAvoid0.length; shellListing++) {
+             var shell = shellsToAvoid0[shellListing];
+             if ((-tan(shell.a)*(x + xOffset) + tan(shell.a)*shell.x + shell.y) >= y && (-tan(shell.a)*(x + xOffset) + tan(shell.a)*shell.x + shell.y) >= (y + 20)) {
+                 
+             }
+         }
+     }
+};
+     
+     var lowerLeftHitBox0 = 0;
+     var middleLeftHitBox0 = 0;
+     var upperLeftHitBox0 = 0;
+     var lowerRightHitBox0 = 0;
+     var middleRightHitBox0 = 0;
+     var upperRightHitBox0 = 0;
+     var bottomHitBox0 = 0;
+     var topHitBox0 = 0;
+     
+     //sensors by x's
+     for (var i = -20; i <= 0; i++) {
+             for (var j = 0; j < shellsToAvoid0.length; j++) {
+                 var shell = shellsToAvoid0[j];
+                 if (((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) >= (tank0.yB + 20)) && ((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) <= (tank0.yB + 40))) {
+                     lowerLeftHitBox0 +=1;
+                 }
+             }
+         }//lower left hit box sensor
+     for (var i = -20; i <= 0; i++) {
+             for (var j = 0; j < shellsToAvoid0.length; j++) {
+                 var shell = shellsToAvoid0[j];
+                 if (((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) >= (tank0.yB)) && ((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) <= (tank0.yB + 20))) {
+                     middleLeftHitBox0 += 1;
+                 }
+             }
+         }//middle left hit box sensor
+     for (var i = -20; i <= 0; i++) {
+             for (var j = 0; j < shellsToAvoid0.length; j++) {
+                 var shell = shellsToAvoid0[j];
+                 if (((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) >= (tank0.yB - 20)) && ((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) <= (tank0.yB))) {
+                     upperLeftHitBox0 += 1;
+                 }
+             }
+         }//upper left hit box sensor
+     for (var i = 20; i <= 40; i++) {
+             for (var j = 0; j < shellsToAvoid0.length; j++) {
+                 var shell = shellsToAvoid0[j];
+                 if (((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) >= (tank0.yB + 20)) && ((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) <= (tank0.yB + 40))) {
+                     lowerRightHitBox0 += 1;
+                 }
+             }
+         }//lower right hit box sensor
+     for (var i = 20; i <= 40; i++) {
+             for (var j = 0; j < shellsToAvoid0.length; j++) {
+                 var shell = shellsToAvoid0[j];
+                 if (((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) >= (tank0.yB)) && ((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) <= (tank0.yB + 20))) {
+                     middleRightHitBox0 += 1;
+                 }
+             }
+         }//middle right hit box sensor
+     for (var i = 20; i <= 40; i++) {
+             for (var j = 0; j < shellsToAvoid0.length; j++) {
+                 var shell = shellsToAvoid0[j];
+                 if (((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) >= (tank0.yB - 20)) && ((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) <= (tank0.yB))) {
+                     upperRightHitBox0 += 1;
+                 }
+             }
+         }//upper right hit box sensor
+     for (var i = 0; i <= 20; i++) {
+             for (var j = 0; j < shellsToAvoid0.length; j++) {
+                 var shell = shellsToAvoid0[j];
+                 if (((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) >= (tank0.yB - 20)) && ((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) <= (tank0.yB))) {
+                     topHitBox0 += 1;
+                 }
+             }
+         }//top hit box sensor
+     for (var i = 0; i <= 20; i++) {
+             for (var j = 0; j < shellsToAvoid0.length; j++) {
+                 var shell = shellsToAvoid0[j];
+                 if (((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) >= (tank0.yB + 20)) && ((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) <= (tank0.yB + 40))) {
+                     bottomHitBox0 += 1;
+                 }
+             }
+         }//bottom hit box sensor
+     
+     //TODO: sensors by y's
+     
+     //says that hitboxes beyond the edge of the screen are not allowed
+     if (tank0.xB <= 20) {
+         lowerLeftHitBox0 += 100;
+         middleLeftHitBox0 += 100;
+         upperLeftHitBox0 += 100;
+     }
+     if (tank0.xB >= 360) {
+         lowerRightHitBox0 += 100;
+         middleRightHitBox0 += 100;
+         upperRightHitBox0 += 100;
+     }
+     if (tank0.yB <= 20) {
+         upperLeftHitBox0 += 100;
+         topHitBox0 += 100;
+         upperRightHitBox0 += 100;
+     }
+     if (tank0.yB >= 360) {
+         lowerLeftHitBox0 += 100;
+         bottomHitBox0 += 100;
+         lowerRightHitBox0 += 100;
+     }
+     
+     var hitBoxes0 = [lowerLeftHitBox0, middleLeftHitBox0, upperLeftHitBox0, lowerRightHitBox0, middleRightHitBox0, upperRightHitBox0, topHitBox0, bottomHitBox0];
+     text("Hitboxes: " + hitBoxes0, 200, 80);
+     
+     if (movementType0 === 0) {
+         for (var i = 0; i <= 20; i++) {
+             for (var j = 0; j < shellsToAvoid0.length; j++) {
+                 var shell = shellsToAvoid0[j];
+                 if (((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) >= (tank0.yB)) && ((-tan(shell.a)*(tank0.xB + i) + tan(shell.a)*shell.x + shell.y) <= (tank0.yB + 20))) {
+                     movementType0 = 1;//evasive(bullets)
+                 }//test by x's
+                 if (((tank0.yB + i - shell.y)/(-tan(shell.a)) + shell.x) >= (tank0.xB) && ((tank0.yB + i - shell.y)/(-tan(shell.a)) + shell.x) <= (tank0.xB + 20)) {
+                     movementType0 = 1;//evasive(bullets)
+                 }//test by y's
+              }
+         } 
+     }//test for movement type by being if shot at
+     if (movementType0 === 0) {
+         var distanceToClosestTank0 = 100;
+         for (var i = 1; i < tanks.length; i++) {
+             var tank = tanks[i];
+             if (Math.sqrt(Math.pow(tank0.xB - tank.xB, 2) + Math.pow(tank0.yB - tank.yB, 2)) < distanceToClosestTank0) {
+                 distanceToClosestTank0 = Math.sqrt(Math.pow(tank0.xB - tank.xB, 2) + Math.pow(tank0.yB - tank.yB, 2));
+                 tankToAvoid0 = tanks[i];
+             }
+         }
+         if (distanceToClosestTank0 < 100) {
+             movementType0 = 2;
+         }
+     }//test for movement type by if too close to other tanks
+     if (movementType0 === 0) {
+         //movementType0 = 3;
+     }//test for movement type by if too close to edge
+     
+     text("Movement Type: " + movementType0, 200, 50);//movement type key: 0 = deciding, 1 = evasive(bullets), 2 = evasive(tanks), 3 = positioning (towards center), 4 = heading to goalPlace
+     text("Tank Coordinates: " + tank0.xB + ", " + tank0.yB, 200, 60);
+     text("Goal Coordinates: " + goalPlace0[0] + ", " + goalPlace0[1], 200, 70);
+     
+     if (movementType0 === 1) {
+         var safePlace = [];
+         var checkRadius0 = 1;
+         
+         for (var i = 0; i < hitBoxes0.length; i++) {
+             if (hitBoxes0[i] === 0) {
+                 //TODO: check to see if you can make it in time
+                 safePlace[safePlace.length] = i;
+             }
+         }//checks if a hitbox is a safe spot, and marks it in safePlace
+         
+         //sets goalPlace based on safe spots
+         if (safePlace[0] === 0) {
+                 goalPlace0 = [tank0.xB - 20, tank0.yB + 20];
+             }
+         if (safePlace[0] === 1) {
+                 goalPlace0 = [tank0.xB - 20, tank0.yB];
+             }
+         if (safePlace[0] === 2) {
+                 goalPlace0 = [tank0.xB - 20, tank0.yB - 20];
+             }
+         if (safePlace[0] === 3) {
+                 goalPlace0 = [tank0.xB + 20, tank0.yB + 20];
+             }
+         if (safePlace[0] === 4) {
+                 goalPlace0 = [tank0.xB + 20, tank0.yB];
+             }
+         if (safePlace[0] === 5) {
+                 goalPlace0 = [tank0.xB + 20, tank0.yB - 20];
+             }
+         if (safePlace[0] === 6) {
+                 goalPlace0 = [tank0.xB, tank0.yB - 20];
+             }
+         if (safePlace[0] === 7) {
+                 goalPlace0 = [tank0.xB, tank0.yB + 20];
+             }
+         //TODO: sort by priority (direction to center, away from tanks, etc)
+         
+         movementType0 = 4;
+
+         
+     }//sets goal place out of paths of all bullets
+     if (movementType0 === 2) {
+         /*var angleToAvoid0 = -atan((tank0.yB - tankToAvoid0.yB)/(tank0.xB - tankToAvoid0.xB));
+         if (tank0.xB - tankToAvoid0.xB < 0) {
+             angleToAvoid0 += 180;
+         }//yes, this is wrong, but it flips the angles, getiting me the one directly away from the tank
+         goalPlace0 = [tank0.xB + cos(angleToAvoid0), tank0.yB - sin(angleToAvoid0)];
+         movementType0 = 4;*/
+         //THIS STILL NEEDS WORK
+         movementType0 = 0;
+     }
+     if (movementType0 === 4) {
+         if (tank0.xB > goalPlace0[0]) {
+             tank0.xConditionB = 1;
+             tank0.xDirectionB = -1;
+         }//moves left
+         if (tank0.xB < goalPlace0[0]) {
+             tank0.xConditionB = 1;
+             tank0.xDirectionB = 1;
+         }//moves right
+         if (tank0.yB > goalPlace0[1]) {
+             tank0.yConditionB = 1;
+             tank0.yDirectionB = -1;
+         }//moves down
+         if (tank0.yB < goalPlace0[1]) {
+             tank0.yConditionB = 1;
+             tank0.yDirectionB = 1;
+         }//moves up
+         for (var i = 0; i <= 20; i++) {
+             for (var j = 0; j < shellsToAvoid0.length; j++) {
+                 var shell = shellsToAvoid0[j];
+                 if (((-tan(shell.a)*(goalPlace0[0] + i) + tan(shell.a)*shell.x + shell.y) >= (goalPlace0[1])) && ((-tan(shell.a)*(goalPlace0[0] + i) + tan(shell.a)*shell.x + shell.y) <= (goalPlace0[1] + 20))) {
+                     movementType0 = 0;
+                 }
+             }
+         }//checks if goal place is still safe, sends it back to deciding if it is not
+     if (tank0.xB === goalPlace0[0] && tank0.yB === goalPlace0[1]) {
+         movementType0 = 0;
+     }//resets movement type once goal place is reached
+     }//moves toward goal place and restarts decision making (if goal place is unsafe or if it has been reached)
+     if (movementType0 === 0) {
+         tank0.xConditionB = 0;
+         tank0.yConditionB = 0;
+     }//dont move
     
-    for (var i = 0; i<shellsToAvoid0.length; i++) {
-        
-    }
+    //firing code 
     //firing code 
     var tankTarget0;
-    tankTarget0 = 3;
-    var firingAngle0;
-    firingAngle0 = atan((-(tanks[tankTarget0].yB - tank0.yB)*((tanks[tankTarget0].yConditionB)*(tanks[tankTarget0].yDirectionB) + 1))/((tanks[tankTarget0].xB - tank0.xB)*(tanks[tankTarget0].xConditionB*(tanks[tankTarget0].xDirectionB) + 1)));
+    if(tank3.health>0){
+        tankTarget0=3;
+    }
+    else if(tank2.health>0){
+        tankTarget0=2;
+    }
+    else if(tank1.health>0){
+        tankTarget0=1;
+    }
+    text(tankTarget0,50,50);
+    var targetDistance0 = sqrt((tanks[tankTarget0].yB - tank0.yB)^2 + (tanks[tankTarget0].xB - tank0.xB)^2);
+    var predictedX0 = targetDistance0*tanks[tankTarget0].xConditionB/sqrt(2)+tanks[tankTarget0].xB;
+    var predictedY0 = targetDistance0*tanks[tankTarget0].xConditionB/sqrt(2)+tanks[tankTarget0].xB;
+    text(predictedX0,10,10);
+    text(predictedY0,10,20);
+var firingAngle0;
+    //firingAngle0 = -atan((tank0.yB - tanks[tankTarget0].yB) / (tank0.xB - tanks[tankTarget0].xB));
+    firingAngle0 = -atan((tank0.yB - predictedY0) / (tank0.xB -predictedX0));
+    if (tank0.xB - tanks[tankTarget0].xB > 0) {
+         firingAngle0 += 180;   
+    }
     text(firingAngle0,200,200);
     text((tank0.angT)%360,200,230);
-    if (firingAngle0 + 90 < (tank0.angT)%360 + 1) {
+    if (firingAngle0 < (tank0.angT)%360 + 1) {
      tank0.conditionT=1;
      tank0.directionT=-1;
-    }else if (firingAngle0 + 90 > (tank0.angT)%360 - 1) {
+    }else if (firingAngle0 > (tank0.angT)%360 - 1) {
     tank0.conditionT=1;
     tank0.directionT=1;
     } else { 
     tank0.conditionT = 0;
     }
+    tank0.conditionS = 1;
+
+    
+    
