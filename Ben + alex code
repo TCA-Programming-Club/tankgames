@@ -1,0 +1,147 @@
+tank1.conditionS=1;
+    
+    
+    //changes tank target
+    var tankTarget1;
+    
+    tankTarget1=3;
+    /*
+    if(tank0.health>0){
+        tankTarget1=0;
+    }
+    else if(tank2.health>0){
+        tankTarget1=2;
+    }
+    else if(tank3.health>0){
+        tankTarget1=3;
+    }
+    else{
+        tankTarget1=3;
+    }*/
+    
+    tank1.xB=10;
+    
+    //AUTO AIMING CODE
+    var angleGoal= atan((tank1.yB-tanks[tankTarget1].yB)/(tanks[tankTarget1].xB-tank1.xB));
+    //if angle needs to get bigger and the target tank is right
+    if(angleGoal+180>tank1.angT%360 && (tanks[tankTarget1].xB-tank1.xB)<0){
+        tank1.conditionT=1;
+        tank1.directionT=1;
+    }
+    //if angle needs to get smaller and the target tank is right
+    else if(angleGoal+180<tank1.angT%360 && (tanks[tankTarget1].xB-tank1.xB)<0){
+        tank1.conditionT=1;
+        tank1.directionT=-1;
+    }
+    //if angle needs to get bigger and the target tank is left
+    else if(angleGoal>tank1.angT%360 && (tanks[tankTarget1].xB-tank1.xB)>0){
+        tank1.conditionT=1;
+        tank1.directionT=1;
+    }
+    //if angle needs to get smaller and the target tank is left
+    else if(angleGoal<tank1.angT%360 && (tanks[tankTarget1].xB-tank1.xB)>0){
+        tank1.conditionT=1;
+        tank1.directionT=-1;
+    }
+    else{
+        tank1.conditionT=1;
+        
+    }
+    
+    //text(angleGoal, 200,200);
+    //text(tank1.angT%360, 200,210);
+    
+    
+    
+    //AUTO AVOIDANCE CODE
+    var shellDistance;
+    var distanceArray=[];
+    var closestShell=0;
+    var tankAngle;
+    var avoidDirection;
+    var isShellDangerous;
+    
+    for(var i=0; i<shells.length;i++){
+        var shell=shells[i];
+        
+        if(shell.n !== 1){
+            shellDistance= dist(tank1.xB, tank1.yB, shell.x, shell.y);
+            distanceArray[distanceArray.length]=shellDistance;
+        }
+    }
+    for(var i=0; i<distanceArray.length;i++){
+        if(distanceArray[closestShell]<distanceArray[i]){
+            closestShell=i;
+        }
+    }
+    
+    //keeps tank near middle
+    if(tank1.xB<200){
+        avoidDirection=-1;
+    }
+    if(tank1.xB>200){
+        avoidDirection=1;
+    }
+    
+    /*
+    //finds if the shell is dangerous
+    if(shells[closestShell].a>atan((tank1.xB-shells[closestShell].x)/(tank1.yB-shells[closestShell].y))+20 || shells[closestShell].a<atan((tank1.xB-shells[closestShell].x)/(tank1.yB-shells[closestShell].y))-20){
+        isShellDangerous=1;
+    }
+    else{
+        isShellDangerous=0;   
+    }*/
+    
+    isShellDangerous=1;
+    
+    
+    //decides which way the tank goes
+    tankAngle=(shells[closestShell].a+90*avoidDirection)%360;
+    if(isShellDangerous===1){
+        //for going down
+        if(tankAngle<22.5 && tankAngle>0 || tankAngle>337.5){
+            tank1.yConditionB=1;
+            tank1.xConditionB=0;
+            tank1.yDirectionB=1;
+        }
+        //for going southeast
+        if(tankAngle>22.5 && tankAngle<67.5){
+            tank1.yConditionB=1;
+            tank1.xConditionB=1;
+            tank1.yDirectionB=1;
+            tank1.xDirectionB=1;
+        }
+        if(tankAngle>67.5 && tankAngle<112.5){
+            tank1.yConditionB=0;
+            tank1.xConditionB=1;
+            tank1.xDirectionB=1;
+        }
+        if(tankAngle>112.5 && tankAngle<157.5){
+            tank1.yConditionB=1;
+            tank1.xConditionB=1;
+            tank1.yDirectionB=-1;
+            tank1.xDirectionB=1;
+        }
+        if(tankAngle<202.5 && tankAngle>157.5){
+            tank1.yConditionB=1;
+            tank1.xConditionB=0;
+            tank1.yDirectionB=-1;
+        }
+        if(tankAngle>202.5 && tankAngle<247.5){
+            tank1.yConditionB=1;
+            tank1.xConditionB=1;
+            tank1.yDirectionB=-1;
+            tank1.xDirectionB=-1;
+        }
+        if(tankAngle<292.5 && tankAngle>247.5){
+            tank1.yConditionB=0;
+            tank1.xConditionB=1;
+            tank1.xDirectionB=-1;
+        }
+        if(tankAngle<337.5 && tankAngle>292.5){
+            tank1.yConditionB=1;
+            tank1.xConditionB=1;
+            tank1.yDirectionB=1;
+            tank1.xDirectionB=-1;
+        }
+    }
