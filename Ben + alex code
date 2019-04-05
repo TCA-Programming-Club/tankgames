@@ -4,7 +4,7 @@ tank1.conditionS=1;
     //changes tank target
     var tankTarget1;
     
-    tankTarget1=3;
+    tankTarget1=0;
     /*
     if(tank0.health>0){
         tankTarget1=0;
@@ -19,7 +19,7 @@ tank1.conditionS=1;
         tankTarget1=3;
     }*/
     
-    tank1.xB=10;
+    
     
     //AUTO AIMING CODE
     var angleGoal= atan((tank1.yB-tanks[tankTarget1].yB)/(tanks[tankTarget1].xB-tank1.xB));
